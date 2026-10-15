@@ -1,8 +1,8 @@
 {
   "name": "brain-quest",
-  "version": "0.3.3",
+  "version": "0.4.1",
   "private": true,
-  "description": "Brain Quest - bilingual 2D logic puzzle game prototype for Web, PWA, Android and iOS",
+  "description": "Brain Quest - 49 worlds of bilingual IQ, geometry and logic puzzles",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",

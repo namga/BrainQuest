@@ -128,3 +128,27 @@ The prototype synthesizes tones with the Web Audio API, so it does not bundle li
 - Android APK filename and GitHub Actions artifact now include the app name and semantic version.
 - Native Android versionName/versionCode are set from package.json.
 - iOS unsigned artifact also includes the version in its artifact name.
+
+## Deploy Web/PWA
+
+### GitHub Pages (automatic)
+1. Push this project to the `main` or `master` branch.
+2. In GitHub, open **Settings → Pages** and set **Build and deployment → Source** to **GitHub Actions**.
+3. Open **Actions** and wait for **Deploy Brain Quest Web to GitHub Pages** to finish.
+4. The deployed URL will be shown in the workflow's `deploy` job and in **Settings → Pages**.
+
+### Netlify
+1. Import the GitHub repository into Netlify.
+2. Build command: `npm install && npm run audit:puzzles && npm run build`
+3. Publish directory: `dist`
+
+The project uses Vite with a relative asset base so the built app can run at a project subpath as well as at a domain root. The service worker/PWA should be checked after deployment on the final HTTPS URL.
+
+## v0.4.0 — 49-world expansion
+- Expands the map to 49 worlds with 20 puzzles per world (980 stages total).
+- Adds deterministic generated geometry, number-pattern, ratio, IQ and logic challenges in later worlds, with increasing difficulty.
+- Background music defaults to enabled on fresh installs and starts after the first user gesture (browser autoplay policy); previous v0.3.x saves migrate with music enabled unless the user changes it in Settings.
+- Includes 3 selectable synthesized music styles and a saved volume slider.
+
+## GitHub release v0.4.1
+Upload this repository root including `.github/workflows`. Android APK and iOS unsigned artifacts are named with the version from `package.json`. Web deployment is available via GitHub Pages or Netlify.
