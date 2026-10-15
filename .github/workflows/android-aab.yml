@@ -1,0 +1,77 @@
+name: Build Brain Quest Android AAB (API 36)
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Set up Android SDK 36
+        uses: android-actions/setup-android@v3
+      - name: Install Android platform and build tools
+        run: |
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+          yes | sdkmanager --licenses
+      - name: Install dependencies
+        run: npm ci || npm install
+      - name: Audit puzzle logic and answer keys
+        run: npm run audit:puzzles
+      - name: Build web assets
+        run: npm run build
+      - name: Add Android platform
+        run: npx cap add android
+      - name: Generate Android app icons and splash assets
+        run: npx capacitor-assets generate --android
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+      - name: Configure target API 36 and version
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          VERSION_CODE="$(node -e "const [a,b,c]=require('./package.json').version.split('.').map(Number); console.log(a*10000+b*100+c)")"
+          echo "APP_VERSION=${VERSION}" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=${VERSION_CODE}" >> "$GITHUB_ENV"
+          VARS="android/variables.gradle"
+          if [ -f "$VARS" ]; then
+            sed -i -E 's/compileSdkVersion = [0-9]+/compileSdkVersion = 36/' "$VARS"
+            sed -i -E 's/targetSdkVersion = [0-9]+/targetSdkVersion = 36/' "$VARS"
+          fi
+          sed -i -E "s/versionCode [0-9]+/versionCode ${VERSION_CODE}/; s/versionName '[^']+'/versionName '${VERSION}'/" android/app/build.gradle
+          grep -R "compileSdkVersion\|targetSdkVersion" android/variables.gradle android/app/build.gradle || true
+      - name: Build debug AAB (test only)
+        working-directory: android
+        run: ./gradlew --no-daemon bundleDebug
+      - name: Rename debug AAB
+        run: cp android/app/build/outputs/bundle/debug/app-debug.aab "Brain-Quest-v${APP_VERSION}-API36-debug.aab"
+      - name: Build release AAB (unsigned unless signing is configured)
+        working-directory: android
+        run: ./gradlew --no-daemon bundleRelease
+      - name: Rename release AAB
+        run: cp android/app/build/outputs/bundle/release/app-release.aab "Brain-Quest-v${APP_VERSION}-API36-release-unsigned.aab"
+      - name: Upload AAB artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Brain-Quest-v${{ env.APP_VERSION }}-AAB-API36
+          path: |
+            Brain-Quest-v${{ env.APP_VERSION }}-API36-debug.aab
+            Brain-Quest-v${{ env.APP_VERSION }}-API36-release-unsigned.aab
+          if-no-files-found: error
+          retention-days: 30
