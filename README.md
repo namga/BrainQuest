@@ -34,7 +34,7 @@ npm run preview
 
 - App display name: **Brain Quest** (configured in `capacitor.config.ts`).
 - Version: read from `package.json` (currently `0.3.2`).
-- Android artifact and downloaded APK filename include the app name and version, for example `Brain-Quest-v0.3.2-debug.apk`.
+- Android artifact and downloaded APK filename include the app name and version, for example `Brain-Quest-v0.3.3-debug.apk`.
 - The Android workflow also sets the native Android `versionName` and `versionCode` from the package version.
 - After changing `package.json` version, commit and push to trigger a new versioned build.
 
@@ -111,7 +111,7 @@ If GitHub Actions is disabled for the repository, enable it in repository settin
 
 ### Logic validation
 
-The 30 puzzle records were structurally checked for four unique choices and valid answer indices. Each answer key was also manually reviewed against its written sequence/rule. This is a content-level review, not a substitute for player usability testing.
+The 60 puzzle records were structurally checked for four unique choices and valid answer indices. Each answer key was also manually reviewed against its written sequence/rule. This is a content-level review, not a substitute for player usability testing.
 
 ### Audio note
 
@@ -124,7 +124,7 @@ The prototype synthesizes tones with the Web Audio API, so it does not bundle li
 - Reworked narrow-screen header into a clear two-row layout, added safe-area spacing, larger touch targets, and raised Settings dialog z-index.
 
 
-## v0.3.2 — versioned app builds
+## v0.3.3 — versioned app builds
 - Android APK filename and GitHub Actions artifact now include the app name and semantic version.
 - Native Android versionName/versionCode are set from package.json.
 - iOS unsigned artifact also includes the version in its artifact name.

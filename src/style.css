@@ -33,3 +33,7 @@ html{width:100%;max-width:100%;overflow-x:clip;scrollbar-gutter:stable}body,#app
 /* Keep the settings dialog above all page decoration and comfortably tappable. */
 #settings-modal{z-index:50}
 #settings-modal .settings-modal{position:relative;width:min(100%,460px);margin:auto}
+
+.volume-control{display:flex;align-items:center;gap:10px;min-width:0}.volume-control input[type=range]{width:100%;min-width:0;accent-color:var(--mint)}.volume-control output{min-width:36px;text-align:right;color:var(--mint);font-variant-numeric:tabular-nums}.volume-row{grid-template-columns:minmax(0,1fr) minmax(110px,45%)}#sound-toggle{font-size:18px}
+
+.volume-control{display:flex;align-items:center;gap:10px;min-width:0}.volume-control input[type=range]{width:100%;min-width:0;accent-color:var(--mint)}.volume-control output{min-width:36px;text-align:right;color:var(--mint);font-variant-numeric:tabular-nums}.volume-row{grid-template-columns:minmax(0,1fr) minmax(110px,45%)}#sound-toggle{font-size:18px}
