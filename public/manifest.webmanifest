@@ -1,0 +1,11 @@
+{
+  "name": "Brain Quest — Think Beyond",
+  "short_name": "Brain Quest",
+  "description": "Tiny puzzles. Big brain energy.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#11152d",
+  "theme_color": "#11152d",
+  "orientation": "portrait",
+  "icons": [{ "src": "/assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

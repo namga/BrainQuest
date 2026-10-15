@@ -1,0 +1,26 @@
+{
+  "name": "brain-quest",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Brain Quest - 2D logic puzzle game prototype for Web, PWA, Android and iOS",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "cap:sync": "cap sync",
+    "android:open": "cap open android",
+    "ios:open": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/ios": "^7.4.3",
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5"
+  }
+}

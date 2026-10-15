@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#11152d" />
+    <meta name="description" content="Brain Quest — quick logic puzzles, daily challenges, and brain-training adventures." />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>Brain Quest — Think Beyond</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Brain Quest home"><span class="brand-mark">✦</span><span>BRAIN<span class="brand-accent">QUEST</span></span></a>
+        <div class="top-stats"><span class="stat-pill"><span>⚡</span><b id="xp-count">120</b> XP</span><button class="icon-btn" id="sound-toggle" aria-label="Toggle sound">♫</button></div>
+      </header>
+      <main class="shell">
+        <section class="hero">
+          <div class="hero-copy"><p class="eyebrow"><span class="live-dot"></span> YOUR DAILY BRAIN BOOST</p><h1>Think beyond<br/><span>the obvious.</span></h1><p class="hero-sub">Tiny puzzles. Big brain energy.</p><div class="hero-actions"><button class="primary-btn" id="play-btn">Play now <span>↗</span></button><button class="secondary-btn" id="daily-btn">Daily challenge <span>✦</span></button></div></div>
+          <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orb orb-main">✦</div><div class="float-tile tile-a">＋</div><div class="float-tile tile-b">◈</div><div class="float-tile tile-c">●</div><div class="float-tile tile-d">?</div><div class="spark spark-a">✧</div><div class="spark spark-b">✦</div></div>
+        </section>
+        <section class="section-head"><div><p class="eyebrow">CHOOSE YOUR CHALLENGE</p><h2>Worlds of wonder</h2></div><span class="progress-label" id="world-progress">0 / 3 worlds</span></section>
+        <section class="world-grid" id="world-grid">
+          <button class="world-card forest" data-world="0"><span class="world-icon">◈</span><span class="world-number">WORLD 01</span><strong>Pattern Grove</strong><span class="world-desc">Spot the hidden rule</span><span class="world-bottom"><span>20 puzzles</span><span class="world-arrow">↗</span></span></button>
+          <button class="world-card machine" data-world="1"><span class="lock-tag" id="lock-1">🔒 Unlock at 5 stars</span><span class="world-icon">⚙</span><span class="world-number">WORLD 02</span><strong>Clockwork Lab</strong><span class="world-desc">Move. Plan. Solve.</span><span class="world-bottom"><span>20 puzzles</span><span class="world-arrow">↗</span></span></button>
+          <button class="world-card cosmos" data-world="2"><span class="lock-tag" id="lock-2">🔒 Unlock at 15 stars</span><span class="world-icon">✧</span><span class="world-number">WORLD 03</span><strong>Cosmic Mind</strong><span class="world-desc">Test your memory</span><span class="world-bottom"><span>20 puzzles</span><span class="world-arrow">↗</span></span></button>
+        </section>
+        <section class="bottom-grid"><div class="daily-card"><div class="daily-icon">☼</div><div><p class="eyebrow">A NEW PUZZLE EVERY DAY</p><h3>Keep your mind curious.</h3><p>One fresh challenge. A little smarter every day.</p></div><button id="daily-card-btn" class="round-arrow" aria-label="Start daily challenge">↗</button></div><div class="profile-card"><div class="profile-head"><span>YOUR PROGRESS</span><span class="level-badge">LVL 01</span></div><div class="profile-score"><strong id="solved-count">0</strong><span>puzzles solved</span></div><div class="progress-track"><span id="progress-fill"></span></div><div class="profile-foot"><span id="star-count">☆ 0 stars</span><span id="next-level">120 / 300 XP</span></div></div></section>
+        <footer><span>✦ BRAIN QUEST</span><span>Made for curious minds.</span><button id="premium-link">Explore Plus ↗</button></footer>
+      </main>
+      <div class="modal-backdrop hidden" id="game-modal" role="dialog" aria-modal="true" aria-labelledby="game-title"><div class="game-modal"><div class="modal-top"><span class="level-chip" id="level-chip">WORLD 01 · PUZZLE 01</span><button class="icon-btn close-btn" id="close-game" aria-label="Close puzzle">×</button></div><div class="game-progress"><span id="level-progress"></span></div><div id="puzzle-stage"><p class="eyebrow">FIND THE PATTERN</p><h2 id="game-title">What comes next?</h2><p class="puzzle-instruction" id="puzzle-instruction">Look closely at the sequence.</p><div class="sequence" id="sequence"></div><div class="answer-grid" id="answer-grid"></div><p class="feedback" id="feedback" aria-live="polite"></p><button class="hint-btn" id="hint-btn">✦ Get a hint <span id="hint-cost">10 XP</span></button></div><div class="win-panel hidden" id="win-panel"><div class="win-burst">✦</div><p class="eyebrow">PUZZLE COMPLETE</p><h2 id="win-title">Brilliant!</h2><div class="win-stars">★★★</div><p id="win-copy">You spotted the pattern.</p><button class="primary-btn full-btn" id="next-puzzle">Next puzzle ↗</button><button class="text-btn" id="back-worlds">Back to worlds</button></div></div></div>
+      <div class="modal-backdrop hidden" id="premium-modal" role="dialog" aria-modal="true" aria-labelledby="premium-title"><div class="premium-modal"><button class="icon-btn premium-close" id="close-premium" aria-label="Close">×</button><div class="premium-gem">✦</div><p class="eyebrow">FOR THE CURIOUS</p><h2 id="premium-title">Go beyond<br/><span>the ordinary.</span></h2><p class="premium-copy">Unlock the full puzzle library, deeper challenges, and exclusive themes.</p><div class="premium-perks"><span>✓  All worlds & bonus packs</span><span>✓  Advanced daily challenges</span><span>✓  Exclusive visual themes</span><span>✓  Progress insights</span></div><div class="price-row"><strong>Coming soon</strong><span>Premium preview</span></div><button class="primary-btn full-btn" id="notify-premium">I'm interested</button><p class="fine-print" id="premium-feedback">No payment is taken in this prototype.</p></div></div>
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
