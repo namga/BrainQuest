@@ -1,6 +1,6 @@
 {
   "name": "brain-quest",
-  "version": "0.4.1",
+  "version": "0.4.5",
   "private": true,
   "description": "Brain Quest - 49 worlds of bilingual IQ, geometry and logic puzzles",
   "type": "module",

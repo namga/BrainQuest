@@ -120,10 +120,10 @@ function generatedPuzzle(world:number,index:number):Puzzle {
  else if(type===5){const nside=(world+index)%6+4; q=make(vi?'Tổng góc trong':'Interior-angle reasoning',vi?'Tổng các góc trong đa giác đều lồi này là bao nhiêu độ?':'Find the sum of interior angles of a convex polygon.',[`${nside} ${vi?'cạnh':'sides'}`],(nside-2)*180,vi?'Công thức là (n − 2) × 180°.':'Use (n − 2) × 180°.',`(${nside} − 2) × 180° = ${(nside-2)*180}°.`,d);}
  else if(type===6){const a=(world+index)%10+3; q=make(vi?'Tư duy tỷ lệ':'Ratio reasoning',vi?`Tỷ lệ ${a}:${a+2} có tổng ${a*2+2}. Số lớn là bao nhiêu?`:`The ratio is ${a}:${a+2} and the total is ${a*2+2}. Find the larger value.`,[`${a} : ${a+2}`,`Total = ${a*2+2}`],a+2,vi?'Tổng số phần bằng tổng hai tỷ số.':'Add the ratio parts to find one unit.',`There are ${a+(a+2)} parts; each part is 1, so the larger value is ${a+2}.`,d);}
  else {const a=(world+index)%8+2; const ans=a*a-a; q=make(vi?'Thử thách IQ':'IQ challenge',vi?'Tính giá trị theo quy tắc n² − n.':'Evaluate the rule n² − n.',[`n = ${a}`,`n² − n = ?`],ans,vi?'Bình phương n rồi trừ n.':'Square n, then subtract n.',`${a}² − ${a} = ${ans}.`,d);}
- const correct=q.answers[0]; q.answers=makeChoices(correct,n,d); q.correct=q.answers.indexOf(correct); return q;
+ return q;
 }
-function makeAnswers(correct:number,n:number,d:number):string[]{return makeChoices(correct,n,d).map(String)}
-function makeChoices(correct:number,n:number,d:number):string[]{const vals=new Set<number>([correct]); let k=1; while(vals.size<4){const delta=(Math.floor(n/3)+k)*(d===1?1:d); vals.add(correct + (k%2?delta:-delta)); k++;} const arr=[...vals]; const shift=n%4; return arr.slice(shift).concat(arr.slice(0,shift));}
+function makeAnswers(correct:number,n:number,d:number):string[]{return makeChoices(correct,n,d)}
+function makeChoices(correct:number,n:number,d:number):string[]{const vals=new Set<number>([correct]); let k=1; while(vals.size<4){const delta=(Math.floor(n/3)+k)*(d===1?1:d); vals.add(correct + (k%2?delta:-delta)); k++;} const arr=[...vals].map(String); const shift=n%4; return arr.slice(shift).concat(arr.slice(0,shift));}
 function puzzleFor(world: number, index: number): Puzzle { const poolIndex = world * PUZZLES_PER_WORLD + index; if (world < 3) return puzzles[poolIndex % puzzles.length]; return generatedPuzzle(world,index); }
 function openPuzzle(world = 0, index = 0, daily = false) {
  if (!worldUnlocked(world)) { showToast(tr(`Complete ${world*10} puzzles to unlock this world.`,`Hoàn thành ${world*10} màn để mở thế giới này.`)); return; }

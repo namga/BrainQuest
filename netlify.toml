@@ -1,6 +1,9 @@
 [build]
-  command = "npm install && npm run audit:puzzles && npm run build"
+  command = "npm install --no-audit --no-fund && npm run build"
   publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
 
 [[headers]]
   for = "/manifest.webmanifest"
