@@ -1,17 +1,16 @@
 name: Build Brain Quest Android AAB (API 36)
-
 on:
   push:
     branches: [main, master]
   pull_request:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   build-aab:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -59,23 +58,76 @@ jobs:
             sed -i -E 's/targetSdkVersion = [0-9]+/targetSdkVersion = 36/' "$VARS"
           fi
           sed -i -E "s/versionCode [0-9]+/versionCode ${VERSION_CODE}/; s/versionName '[^']+'/versionName '${VERSION}'/" android/app/build.gradle
-          grep -R "compileSdkVersion\|targetSdkVersion" android/variables.gradle android/app/build.gradle || true
+      - name: Configure release signing from GitHub Secrets (optional)
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/brainquest-upload.jks"
+          test -s "$RUNNER_TEMP/brainquest-upload.jks"
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/brainquest-upload.jks"
+          {
+            echo "ANDROID_KEYSTORE_PATH=$ANDROID_KEYSTORE_PATH"
+            echo "ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD"
+            echo "ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS"
+            echo "ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+          python3 - <<'PYCODE'
+          from pathlib import Path
+          import re
+          p = Path('android/app/build.gradle')
+          s = p.read_text()
+          if 'signingConfigs {' not in s:
+              s = s.replace('    buildTypes {', '''    signingConfigs {
+          release {
+              storeFile file(System.getenv("ANDROID_KEYSTORE_PATH"))
+              storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+              keyAlias System.getenv("ANDROID_KEY_ALIAS")
+              keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+          }
+      }
+
+      buildTypes {''', 1)
+          m = re.search(r'(buildTypes\s*\{\s*release\s*\{)', s)
+          if not m:
+              raise SystemExit('Could not locate release buildTypes block in app/build.gradle')
+          start = m.end()
+          if 'signingConfig signingConfigs.release' not in s[start:s.find('}', start)+1]:
+              s = s[:start] + '\n            signingConfig signingConfigs.release' + s[start:]
+          p.write_text(s)
+          PYCODE
+          echo "AAB_SIGNING_CONFIGURED=true" >> "$GITHUB_ENV"
       - name: Build debug AAB (test only)
         working-directory: android
         run: ./gradlew --no-daemon bundleDebug
       - name: Rename debug AAB
         run: cp android/app/build/outputs/bundle/debug/app-debug.aab "Brain-Quest-v${APP_VERSION}-API36-debug.aab"
-      - name: Build release AAB (unsigned unless signing is configured)
+      - name: Build release AAB
         working-directory: android
         run: ./gradlew --no-daemon bundleRelease
       - name: Rename release AAB
-        run: cp android/app/build/outputs/bundle/release/app-release.aab "Brain-Quest-v${APP_VERSION}-API36-release-unsigned.aab"
+        shell: bash
+        run: |
+          if [ "${AAB_SIGNING_CONFIGURED:-false}" = "true" ]; then
+            cp android/app/build/outputs/bundle/release/app-release.aab "Brain-Quest-v${APP_VERSION}-API36-release-signed.aab"
+          else
+            cp android/app/build/outputs/bundle/release/app-release.aab "Brain-Quest-v${APP_VERSION}-API36-release-unsigned.aab"
+          fi
       - name: Upload AAB artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Brain-Quest-v${{ env.APP_VERSION }}-AAB-API36
           path: |
             Brain-Quest-v${{ env.APP_VERSION }}-API36-debug.aab
+            Brain-Quest-v${{ env.APP_VERSION }}-API36-release-signed.aab
             Brain-Quest-v${{ env.APP_VERSION }}-API36-release-unsigned.aab
           if-no-files-found: error
           retention-days: 30
