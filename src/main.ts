@@ -1,128 +1,136 @@
 import Phaser from 'phaser';
 import './style.css';
 
-type Puzzle = { sequence: string[]; answers: string[]; correct: number; title: string; instruction: string; hint: string; explain: string };
+type Lang = 'en' | 'vi';
+type Puzzle = { title: string; instruction: string; sequence: string[]; answers: string[]; correct: number; hint: string; explain: string; difficulty: 1|2|3 };
 const puzzles: Puzzle[] = [
-  {sequence:['●','●●','●●●','?'],answers:['●','●●●●','●●','◈'],correct:1,title:'What comes next?',instruction:'The pattern is growing. Can you spot how?',hint:'Count how many dots appear in each step.',explain:'One dot is added each time: 1, 2, 3, then 4.'},
-  {sequence:['▲','■','▲','■','?'],answers:['●','▲','◆','■'],correct:1,title:'Follow the rhythm',instruction:'Every shape has its place in this sequence.',hint:'The two shapes alternate.',explain:'Triangle, square, triangle, square… triangle!'},
-  {sequence:['2','4','8','16','?'],answers:['18','24','30','32'],correct:3,title:'Double trouble',instruction:'Numbers can hide a simple rule.',hint:'Each number is multiplied by the same amount.',explain:'Each number doubles: 2, 4, 8, 16, 32.'},
-  {sequence:['☾','◐','●','◑','?'],answers:['☾','●','◐','★'],correct:0,title:'Moon phases',instruction:'Watch how the light changes.',hint:'The sequence cycles back to the beginning.',explain:'The four symbols repeat in the same order.'},
-  {sequence:['1','4','9','16','?'],answers:['20','24','25','36'],correct:2,title:'Square it up',instruction:'Look for the hidden number pattern.',hint:'Think 1×1, 2×2, 3×3…',explain:'These are square numbers: 1, 4, 9, 16, 25.'},
-  {sequence:['◆','◇','◆','◇','?'],answers:['◇','◆','○','□'],correct:1,title:'Light and shadow',instruction:'One filled, one empty. What follows?',hint:'Filled and empty diamonds take turns.',explain:'The pattern alternates filled and empty diamonds.'},
-  {sequence:['3','6','9','12','?'],answers:['13','14','15','18'],correct:2,title:'Count by three',instruction:'Find the steady step between numbers.',hint:'Add the same number each time.',explain:'Add 3 each time to reach 15.'},
-  {sequence:['🟦','🟦🟨','🟦🟨🟦','?'],answers:['🟨🟦🟨','🟦🟨🟦🟨','🟦🟦🟨','🟨🟨🟦'],correct:1,title:'Color cascade',instruction:'A new tile joins the line at each step.',hint:'Keep adding one tile, alternating blue and yellow.',explain:'The next sequence adds a yellow tile at the end.'}
+ {title:'Growing dots',instruction:'Find how the number of dots changes.',sequence:['●','●●','●●●','?'],answers:['●','●●●●','●●','◈'],correct:1,hint:'Count the dots in each step.',explain:'One dot is added each time: 1, 2, 3, then 4.',difficulty:1},
+ {title:'Alternating shapes',instruction:'Which shape continues the alternating pattern?',sequence:['▲','■','▲','■','?'],answers:['●','▲','◆','■'],correct:1,hint:'The two shapes take turns.',explain:'Triangle and square alternate, so the next shape is a triangle.',difficulty:1},
+ {title:'Double trouble',instruction:'Find the rule that connects the numbers.',sequence:['2','4','8','16','?'],answers:['18','24','30','32'],correct:3,hint:'Multiply each number by the same amount.',explain:'Each number doubles: 2, 4, 8, 16, 32.',difficulty:1},
+ {title:'Square numbers',instruction:'What number comes after 1, 4, 9, 16?',sequence:['1','4','9','16','?'],answers:['20','24','25','36'],correct:2,hint:'Think 1×1, 2×2, 3×3…',explain:'These are square numbers: 1², 2², 3², 4², 5² = 25.',difficulty:1},
+ {title:'Count by three',instruction:'Find the constant step between numbers.',sequence:['3','6','9','12','?'],answers:['13','14','15','18'],correct:2,hint:'Add the same number each time.',explain:'Add 3 each time, so 12 + 3 = 15.',difficulty:1},
+ {title:'Growing difference',instruction:'The gap between numbers is changing.',sequence:['2','5','9','14','20','?'],answers:['25','26','27','28'],correct:2,hint:'The gaps are +3, +4, +5, +6.',explain:'The next gap is +7, so 20 + 7 = 27.',difficulty:2},
+ {title:'Fibonacci trail',instruction:'Each number depends on the two before it.',sequence:['1','1','2','3','5','?'],answers:['6','7','8','10'],correct:2,hint:'Add the previous two numbers.',explain:'3 + 5 = 8, so the next number is 8.',difficulty:2},
+ {title:'Odd one out',instruction:'Which number breaks the rule?',sequence:['9','16','25','36','48'],answers:['16','25','36','48'],correct:3,hint:'Four numbers are perfect squares.',explain:'9, 16, 25 and 36 are squares. 48 is not.',difficulty:2},
+ {title:'Reverse the rule',instruction:'Apply the same operation at every step.',sequence:['81','27','9','3','?'],answers:['0','1','2','6'],correct:1,hint:'Each number is divided by 3.',explain:'3 ÷ 3 = 1.',difficulty:2},
+ {title:'Shape cycle',instruction:'The four-symbol sequence repeats.',sequence:['○','△','□','◇','○','△','?'],answers:['○','□','◇','△'],correct:1,hint:'Start counting from the first symbol again.',explain:'The repeating cycle is circle, triangle, square, diamond.',difficulty:2},
+ {title:'Two-step pattern',instruction:'Find the rule in this number sequence.',sequence:['4','7','13','22','34','?'],answers:['46','47','49','52'],correct:2,hint:'The gaps increase by 3: +3, +6, +9, +12.',explain:'The next gap is +15, so 34 + 15 = 49.',difficulty:2},
+ {title:'Multiply then add',instruction:'Use the same two operations each time.',sequence:['2','5','11','23','47','?'],answers:['91','93','95','97'],correct:2,hint:'Multiply by 2, then add 1.',explain:'47 × 2 + 1 = 95.',difficulty:2},
+ {title:'Missing value',instruction:'Each row follows the same arithmetic rule.',sequence:['2 → 6','3 → 12','4 → 20','5 → ?'],answers:['25','28','30','35'],correct:2,hint:'Multiply the number by the next integer.',explain:'5 × 6 = 30.',difficulty:2},
+ {title:'Letter steps',instruction:'Move forward through the alphabet.',sequence:['A','C','F','J','O','?'],answers:['S','T','U','V'],correct:2,hint:'The jumps are +2, +3, +4, +5.',explain:'The next jump is +6: O → U.',difficulty:2},
+ {title:'Alternating operations',instruction:'The operations alternate between steps.',sequence:['10','20','17','34','31','?'],answers:['28','52','62','64'],correct:2,hint:'Multiply by 2, then subtract 3, repeatedly.',explain:'31 × 2 = 62.',difficulty:2},
+ {title:'Triangular numbers',instruction:'The number grows by one more each time.',sequence:['1','3','6','10','15','?'],answers:['18','20','21','24'],correct:2,hint:'The gaps are +2, +3, +4, +5.',explain:'The next gap is +6, so 15 + 6 = 21.',difficulty:2},
+ {title:'Number code',instruction:'Each symbol stands for a number: ★=2, ◆=5.',sequence:['★ = 2','◆ = 5','★ × ◆ = ?'],answers:['4','7','10','12'],correct:2,hint:'Use the symbol values given in the instruction.',explain:'★ × ◆ = 2 × 5 = 10.',difficulty:3},
+ {title:'Prime trail',instruction:'These numbers are prime numbers in order.',sequence:['2','3','5','7','11','?'],answers:['12','13','15','17'],correct:1,hint:'A prime has exactly two positive factors.',explain:'The next prime after 11 is 13.',difficulty:3},
+ {title:'Cube numbers',instruction:'Look for numbers raised to the third power.',sequence:['1','8','27','64','?'],answers:['100','121','125','216'],correct:2,hint:'These are 1³, 2³, 3³, 4³…',explain:'5³ = 125, not 216. The correct answer is 125.',difficulty:3},
+ {title:'Mirror logic',instruction:'Choose the symbol that completes the repeating pair.',sequence:['↗','↘','↗','↘','?'],answers:['↖','↘','↗','↙'],correct:2,hint:'The arrows alternate between up-right and down-right.',explain:'The pattern alternates ↗ and ↘, so ↗ comes next.',difficulty:3},
+ {title:'Difference of differences',instruction:'The gaps themselves form a pattern.',sequence:['1','4','10','19','31','?'],answers:['43','44','46','49'],correct:2,hint:'The gaps are +3, +6, +9, +12.',explain:'The next gap is +15, so 31 + 15 = 46.',difficulty:3},
+ {title:'Divide and subtract',instruction:'A repeating two-step rule creates this sequence.',sequence:['40','20','17','8.5','5.5','?'],answers:['2.25','2.5','2.75','3'],correct:2,hint:'Divide by 2, then subtract 3.',explain:'5.5 ÷ 2 = 2.75.',difficulty:3},
+ {title:'Find the pair',instruction:'The second number is the first number squared minus one.',sequence:['2 → 3','3 → 8','4 → 15','5 → ?'],answers:['20','24','25','26'],correct:1,hint:'Try n² − 1.',explain:'5² − 1 = 24. The correct answer is 24.',difficulty:3},
+ {title:'Logic sequence',instruction:'Each term is the sum of the previous term and its position.',sequence:['2','4','7','11','16','?'],answers:['20','21','22','23'],correct:2,hint:'The gaps are +2, +3, +4, +5.',explain:'The next gap is +6, so 16 + 6 = 22.',difficulty:3},
+ {title:'Factor ladder',instruction:'Each number is multiplied by an increasing integer.',sequence:['2','6','24','120','?'],answers:['240','360','600','720'],correct:3,hint:'Multiply by 3, then 4, then 5, then 6.',explain:'120 × 6 = 720.',difficulty:3},
+ {title:'Balanced equation',instruction:'Find x: 3x + 4 = 25.',sequence:['3x + 4 = 25','3x = 21','x = ?'],answers:['5','6','7','8'],correct:2,hint:'Subtract 4, then divide by 3.',explain:'25 − 4 = 21 and 21 ÷ 3 = 7.',difficulty:3},
+ {title:'Count the corners',instruction:'How many corners are in two pentagons and one triangle?',sequence:['Pentagon + Pentagon + Triangle','5 + 5 + 3 = ?'],answers:['10','11','13','15'],correct:2,hint:'A pentagon has 5 corners; a triangle has 3.',explain:'5 + 5 + 3 = 13.',difficulty:2},
+ {title:'Double again',instruction:'Each number doubles the previous number.',sequence:['1','2','4','8','?'],answers:['12','14','16','18'],correct:2,hint:'Each number doubles.',explain:'8 × 2 = 16.',difficulty:1},
+ {title:'Add three',instruction:'Which number continues the pattern? Add three each time.',sequence:['2','5','8','11','?'],answers:['12','13','14','15'],correct:2,hint:'Add 3 each time.',explain:'11 + 3 = 14. Correct answer: 14.',difficulty:1},
+ {title:'Challenge finale',instruction:'The gaps grow by 2 each time.',sequence:['5','8','13','20','29','?'],answers:['38','39','40','41'],correct:2,hint:'The gaps are +3, +5, +7, +9.',explain:'The next gap is +11, so 29 + 11 = 40.',difficulty:3}
 ];
 
-const saveKey = 'brain-quest-save-v1';
-type Save = { xp: number; solved: number[]; stars: number; sound: boolean; premiumInterest: boolean };
-const defaultSave: Save = { xp: 120, solved: [], stars: 0, sound: true, premiumInterest: false };
-let save: Save = loadSave();
-let activeWorld = 0;
-let activePuzzle = 0;
-let dailyMode = false;
-let hinted = false;
-let toastTimer = 0;
-
-function loadSave(): Save {
-  try { return { ...defaultSave, ...JSON.parse(localStorage.getItem(saveKey) || '{}') }; } catch { return { ...defaultSave }; }
+// Answer-key audit: catches malformed content before the game is playable.
+function auditPuzzles(): string[] {
+ const errors: string[] = [];
+ puzzles.forEach((p, i) => {
+  if (p.answers.length !== 4 || p.correct < 0 || p.correct >= p.answers.length) errors.push(`Puzzle ${i + 1}: invalid answer key`);
+  if (!p.title || !p.instruction || !p.hint || !p.explain) errors.push(`Puzzle ${i + 1}: missing text`);
+  if (new Set(p.answers).size !== p.answers.length) errors.push(`Puzzle ${i + 1}: duplicate answer options`);
+ });
+ return errors;
 }
-function persist() { localStorage.setItem(saveKey, JSON.stringify(save)); renderStats(); }
+
+const saveKey = 'brain-quest-save-v2';
+type Save = { xp: number; solved: number[]; stars: number; sound: boolean; music: boolean; musicTheme: string; lang: Lang; premiumInterest: boolean };
+const defaultSave: Save = { xp: 0, solved: [], stars: 0, sound: true, music: false, musicTheme: 'calm', lang: 'en', premiumInterest: false };
+let save: Save = loadSave();
+let activeWorld = 0, activePuzzle = 0, dailyMode = false, hinted = false, toastTimer = 0;
+let audioContext: AudioContext | null = null, musicTimer = 0, musicStep = 0;
+const musicThemes: Record<string, {label: string; notes: number[]; tempo: number; wave: OscillatorType}> = {
+ calm: {label:'Calm piano', notes:[261.63,329.63,392,329.63,293.66,349.23,440,349.23], tempo:520, wave:'sine'},
+ focus: {label:'Focus ambient', notes:[196,246.94,293.66,246.94,220,261.63,329.63,261.63], tempo:620, wave:'triangle'},
+ retro: {label:'Retro arcade', notes:[392,523.25,659.25,523.25,440,587.33,698.46,587.33], tempo:260, wave:'square'}
+};
+function loadSave(): Save { try { const raw = localStorage.getItem(saveKey) || localStorage.getItem('brain-quest-save-v1') || '{}'; const old = JSON.parse(raw); return { ...defaultSave, ...old, solved: Array.isArray(old.solved) ? old.solved.filter((n: unknown) => typeof n === 'number' && n >= 0 && n < 30) : [] }; } catch { return { ...defaultSave }; } }
+function persist() { try { localStorage.setItem(saveKey, JSON.stringify(save)); } catch { /* private browsing can block storage */ } renderStats(); }
 function $(id: string) { const el = document.getElementById(id); if (!el) throw new Error(`Missing element #${id}`); return el; }
+function tr(en: string, vi: string) { return save.lang === 'vi' ? vi : en; }
 function showToast(message: string) { const el = $('toast'); el.textContent = message; el.classList.add('show'); window.clearTimeout(toastTimer); toastTimer = window.setTimeout(() => el.classList.remove('show'), 2400); }
 function renderStats() {
-  $('xp-count').textContent = String(save.xp);
-  $('solved-count').textContent = String(save.solved.length);
-  $('star-count').textContent = `☆ ${save.stars} stars`;
-  $('progress-fill').style.width = `${Math.min(100, save.solved.length / 60 * 100)}%`;
-  $('next-level').textContent = `${save.xp % 300} / 300 XP`;
-  $('world-progress').textContent = `${[0,1,2].filter(w => worldUnlocked(w)).length} / 3 worlds`;
-  $('lock-1').textContent = worldUnlocked(1) ? '✓ WORLD OPEN' : '🔒 Unlock at 5 stars';
-  $('lock-2').textContent = worldUnlocked(2) ? '✓ WORLD OPEN' : '🔒 Unlock at 15 stars';
-  document.querySelectorAll<HTMLButtonElement>('.world-card').forEach((card, i) => card.classList.toggle('locked', !worldUnlocked(i)));
+ $('xp-count').textContent = String(save.xp); $('solved-count').textContent = String(save.solved.length); $('star-count').textContent = `☆ ${save.stars} ${tr('stars','sao')}`;
+ $('progress-fill').style.width = `${Math.min(100, save.solved.length / 30 * 100)}%`; $('next-level').textContent = `${save.xp % 300} / 300 XP`;
+ $('world-progress').textContent = `${[0,1,2].filter(w => worldUnlocked(w)).length} / 3 ${tr('worlds','thế giới')}`;
+ $('lock-1').textContent = worldUnlocked(1) ? tr('✓ WORLD OPEN','✓ ĐÃ MỞ') : tr('🔒 Unlock at 5 stars','🔒 Cần 5 sao');
+ $('lock-2').textContent = worldUnlocked(2) ? tr('✓ WORLD OPEN','✓ ĐÃ MỞ') : tr('🔒 Unlock at 15 stars','🔒 Cần 15 sao');
+ document.querySelectorAll<HTMLButtonElement>('.world-card').forEach((card, i) => { card.classList.toggle('locked', !worldUnlocked(i)); const count = card.querySelector('.world-bottom span'); if (count) count.textContent = `10 ${tr('puzzles','màn')}`; });
 }
 function worldUnlocked(world: number) { return world === 0 || save.stars >= (world === 1 ? 5 : 15); }
-function puzzleFor(world: number, index: number): Puzzle {
-  const base = puzzles[(index + world * 2) % puzzles.length];
-  if (world === 1) return { ...base, title: ['Plan your next move','A clever sequence','Think in steps'][index % 3], instruction: 'Use the pattern to predict the next move.' };
-  if (world === 2) return { ...base, title: ['Memory of the cosmos','A stellar pattern','Connect the clues'][index % 3], instruction: 'Focus on the symbols and find the hidden rule.' };
-  return base;
-}
+function puzzleFor(world: number, index: number): Puzzle { const poolIndex = world * 10 + index; const base = puzzles[poolIndex % puzzles.length]; return base; }
 function openPuzzle(world = 0, index = 0, daily = false) {
-  if (!worldUnlocked(world)) { showToast(world === 1 ? 'Earn 5 stars to unlock Clockwork Lab.' : 'Earn 15 stars to unlock Cosmic Mind.'); return; }
-  activeWorld = world; activePuzzle = index; dailyMode = daily; hinted = false;
-  $('game-modal').classList.remove('hidden'); $('win-panel').classList.add('hidden'); $('puzzle-stage').classList.remove('hidden');
-  $('feedback').textContent = ''; $('hint-btn').classList.remove('hint-used');
-  renderPuzzle();
+ if (!worldUnlocked(world)) { showToast(world === 1 ? tr('Earn 5 stars to unlock this world.','Đạt 5 sao để mở thế giới này.') : tr('Earn 15 stars to unlock this world.','Đạt 15 sao để mở thế giới này.')); return; }
+ activeWorld = world; activePuzzle = Math.max(0, Math.min(9, index)); dailyMode = daily; hinted = false;
+ $('game-modal').classList.remove('hidden'); $('win-panel').classList.add('hidden'); $('puzzle-stage').classList.remove('hidden'); $('feedback').textContent = ''; $('hint-btn').classList.remove('hint-used'); renderPuzzle();
 }
 function renderPuzzle() {
-  const p = puzzleFor(activeWorld, activePuzzle);
-  $('level-chip').textContent = `${dailyMode ? 'DAILY CHALLENGE' : `WORLD 0${activeWorld + 1}`} · PUZZLE ${String(activePuzzle + 1).padStart(2,'0')}`;
-  $('game-title').textContent = p.title; $('puzzle-instruction').textContent = p.instruction;
-  $('level-progress').style.width = `${(activePuzzle + 1) / 20 * 100}%`;
-  $('sequence').innerHTML = p.sequence.map((s, i) => `<span class="sequence-item" style="--i:${i}">${s}</span>`).join('');
-  $('answer-grid').innerHTML = '';
-  p.answers.forEach((answer, i) => {
-    const button = document.createElement('button'); button.className = 'answer-btn'; button.textContent = answer; button.setAttribute('aria-label', `Answer ${i + 1}: ${answer}`);
-    button.addEventListener('click', () => chooseAnswer(i, button)); $('answer-grid').appendChild(button);
-  });
+ const p = puzzleFor(activeWorld, activePuzzle); const number = activeWorld * 10 + activePuzzle + 1;
+ $('level-chip').textContent = `${dailyMode ? tr('DAILY CHALLENGE','THỬ THÁCH NGÀY') : `${tr('WORLD','THẾ GIỚI')} 0${activeWorld + 1}`} · ${tr('PUZZLE','MÀN')} ${String(activePuzzle + 1).padStart(2,'0')}`;
+ $('game-title').textContent = localizedTitle(number, p.title); $('puzzle-instruction').textContent = localizedInstruction(number, p.instruction);
+ $('level-progress').style.width = `${(activePuzzle + 1) / 10 * 100}%`;
+ $('sequence').innerHTML = p.sequence.map((s, i) => `<span class="sequence-item" style="--i:${i}">${s}</span>`).join(''); $('answer-grid').innerHTML = '';
+ p.answers.forEach((answer, i) => { const button = document.createElement('button'); button.className = 'answer-btn'; button.textContent = answer; button.setAttribute('aria-label', `${tr('Answer','Đáp án')} ${i + 1}: ${answer}`); button.addEventListener('click', () => chooseAnswer(i, button)); $('answer-grid').appendChild(button); });
+ $('feedback').textContent = ''; $('hint-btn').textContent = tr('✦ Get a hint','✦ Gợi ý'); const cost = document.createElement('span'); cost.textContent = '10 XP'; $('hint-btn').appendChild(cost);
 }
+function localizedTitle(n: number, fallback: string) { const vi: Record<number,string> = {1:'Chấm tròn tăng dần',2:'Hình xen kẽ',3:'Nhân đôi',4:'Số chính phương',5:'Đếm thêm 3',6:'Khoảng cách tăng dần',7:'Dãy Fibonacci',8:'Số khác biệt',9:'Chia cho 3',10:'Chu kỳ hình học',11:'Hai bước tăng',12:'Nhân đôi cộng một',13:'Tìm số còn thiếu',14:'Bước nhảy chữ cái',15:'Phép tính xen kẽ',16:'Số tam giác',17:'Mã ký hiệu',18:'Dãy số nguyên tố',19:'Số lập phương',20:'Mũi tên đối xứng',21:'Hiệu số tăng dần',22:'Chia rồi trừ',23:'Tìm quy luật cặp số',24:'Dãy logic',25:'Thang giai thừa',26:'Phương trình cân bằng',27:'Đếm góc',28:'Tiếp tục nhân đôi',29:'Cộng thêm ba',30:'Thử thách cuối'}; return save.lang === 'vi' ? (vi[n] || fallback) : fallback; }
+function localizedInstruction(n: number, fallback: string) { const vi: Record<number,string> = {1:'Tìm quy luật tăng số chấm.',2:'Chọn hình tiếp theo trong quy luật xen kẽ.',3:'Tìm quy tắc nối các con số.',4:'Số nào xuất hiện tiếp theo?',5:'Tìm bước tăng cố định.',6:'Khoảng cách giữa các số đang thay đổi.',7:'Mỗi số được tạo từ hai số trước.',8:'Số nào phá vỡ quy luật?',9:'Mỗi bước chia cho cùng một số.',10:'Chuỗi bốn ký hiệu lặp lại.',11:'Tìm quy luật của các khoảng cách.',12:'Lặp lại hai phép tính giống nhau.',13:'Mỗi dòng tuân theo một quy tắc.',14:'Tiến lên trong bảng chữ cái.',15:'Hai phép tính được thực hiện luân phiên.',16:'Mỗi lần tăng thêm một đơn vị.',17:'Dùng giá trị ký hiệu để tính.',18:'Đây là các số nguyên tố theo thứ tự.',19:'Tìm số mũ ba tiếp theo.',20:'Chọn mũi tên hoàn thành cặp lặp.',21:'Khoảng cách cũng tạo thành quy luật.',22:'Lặp lại phép chia hai rồi trừ ba.',23:'Tìm quy tắc liên hệ hai số.',24:'Tìm bước tăng tiếp theo.',25:'Nhân với số nguyên tăng dần.',26:'Tìm x trong phương trình.',27:'Đếm tổng số góc của các hình.',28:'Mỗi số gấp đôi số trước.',29:'Cộng 3 sau mỗi bước.',30:'Các khoảng cách tăng thêm 2 mỗi lần.'}; return save.lang === 'vi' ? (vi[n] || fallback) : fallback; }
+function localizedHint(n: number, fallback: string) { if (save.lang !== 'vi') return fallback; const hints: Record<number,string> = {1:'Đếm số chấm ở mỗi bước.',2:'Hai hình thay phiên nhau.',3:'Nhân mỗi số với cùng một số.',4:'Thử 1×1, 2×2, 3×3…',5:'Mỗi lần cộng cùng một số.',6:'Khoảng cách là +3, +4, +5, +6.',7:'Cộng hai số đứng trước.',8:'Bốn số là số chính phương.',9:'Mỗi bước chia cho 3.',10:'Bắt đầu lại chu kỳ từ ký hiệu đầu.',11:'Khoảng cách tăng thêm 3 mỗi lần.',12:'Nhân 2 rồi cộng 1.',13:'Nhân số đó với số nguyên kế tiếp.',14:'Các bước nhảy là +2, +3, +4, +5.',15:'Nhân 2 rồi trừ 3, lặp lại.',16:'Các bước tăng là +2, +3, +4, +5.',17:'Dùng giá trị ký hiệu đã cho.',18:'Số nguyên tố chỉ có hai ước dương.',19:'Đây là 1³, 2³, 3³, 4³…',20:'Mũi tên lên-phải và xuống-phải luân phiên.',21:'Khoảng cách là +3, +6, +9, +12.',22:'Chia 2, sau đó trừ 3.',23:'Thử quy tắc n² − 1.',24:'Khoảng cách lần lượt +2, +3, +4, +5.',25:'Nhân 3, rồi 4, rồi 5, rồi 6.',26:'Trừ 4, sau đó chia 3.',27:'Ngũ giác có 5 góc; tam giác có 3.',28:'Mỗi số gấp đôi.',29:'Cộng 3 mỗi lần.',30:'Khoảng cách là +3, +5, +7, +9.'}; return hints[n] || fallback; }
+function localizedExplain(n: number, fallback: string) { if (save.lang !== 'vi') return fallback; const ex: Record<number,string> = {1:'Mỗi bước thêm một chấm: 1, 2, 3 rồi 4.',2:'Tam giác và hình vuông luân phiên; tiếp theo là tam giác.',3:'Mỗi số gấp đôi: 2, 4, 8, 16, 32.',4:'Đây là các số chính phương; số tiếp theo là 5² = 25.',5:'12 + 3 = 15.',6:'Bước tăng tiếp theo là +7, nên 20 + 7 = 27.',7:'3 + 5 = 8.',8:'9, 16, 25 và 36 là số chính phương; 48 thì không.',9:'3 ÷ 3 = 1.',10:'Chu kỳ là tròn, tam giác, vuông, thoi.',11:'Bước tăng tiếp theo là +15, nên 34 + 15 = 49.',12:'47 × 2 + 1 = 95.',13:'5 × 6 = 30.',14:'O tiến thêm 6 chữ cái sẽ đến U.',15:'31 × 2 = 62.',16:'Bước tăng tiếp theo là +6, nên 15 + 6 = 21.',17:'★ × ◆ = 2 × 5 = 10.',18:'Số nguyên tố tiếp theo sau 11 là 13.',19:'5³ = 125.',20:'Mũi tên ↗ và ↘ luân phiên; tiếp theo là ↗.',21:'Bước tiếp theo là +15, nên 31 + 15 = 46.',22:'5.5 ÷ 2 = 2.75.',23:'5² − 1 = 24.',24:'Bước tiếp theo là +6, nên 16 + 6 = 22.',25:'120 × 6 = 720.',26:'25 − 4 = 21; 21 ÷ 3 = 7.',27:'5 + 5 + 3 = 13.',28:'8 × 2 = 16.',29:'11 + 3 = 14.',30:'Bước tiếp theo là +11, nên 29 + 11 = 40.'}; return ex[n] || fallback; }
 function chooseAnswer(choice: number, button: HTMLButtonElement) {
-  const p = puzzleFor(activeWorld, activePuzzle);
-  const buttons = [...document.querySelectorAll<HTMLButtonElement>('.answer-btn')]; buttons.forEach(b => b.disabled = true);
-  if (choice !== p.correct) {
-    button.classList.add('wrong'); $('feedback').textContent = 'Not quite — take another look and try again.';
-    window.setTimeout(() => { buttons.forEach(b => { b.disabled = false; b.classList.remove('wrong'); }); $('feedback').textContent = ''; }, 850);
-    return;
-  }
-  button.classList.add('correct'); $('feedback').textContent = p.explain;
-  const id = activeWorld * 20 + activePuzzle;
-  if (!save.solved.includes(id)) { save.solved.push(id); save.xp += hinted ? 5 : 10; save.stars += hinted ? 1 : 2; persist(); }
-  window.setTimeout(() => {
-    $('puzzle-stage').classList.add('hidden'); $('win-panel').classList.remove('hidden');
-    $('win-title').textContent = hinted ? 'Well done!' : 'Brilliant!'; $('win-copy').textContent = p.explain;
-    $('win-stars').textContent = hinted ? '★☆☆' : '★★☆';
-  }, 450);
+ const p = puzzleFor(activeWorld, activePuzzle), n = activeWorld * 10 + activePuzzle + 1;
+ const buttons = [...document.querySelectorAll<HTMLButtonElement>('.answer-btn')]; buttons.forEach(b => b.disabled = true);
+ if (choice !== p.correct) { button.classList.add('wrong'); $('feedback').textContent = tr('Not quite — try again.','Chưa đúng — hãy thử lại nhé.'); playTone(false); window.setTimeout(() => { buttons.forEach(b => { b.disabled = false; b.classList.remove('wrong'); }); $('feedback').textContent = ''; }, 850); return; }
+ button.classList.add('correct'); $('feedback').textContent = localizedExplain(n, p.explain); playTone(true);
+ const id = activeWorld * 10 + activePuzzle;
+ if (!save.solved.includes(id)) { save.solved.push(id); save.xp += hinted ? 5 : 10; save.stars += hinted ? 1 : 2; persist(); }
+ window.setTimeout(() => { $('puzzle-stage').classList.add('hidden'); $('win-panel').classList.remove('hidden'); $('win-title').textContent = tr('Brilliant!','Xuất sắc!'); $('win-copy').textContent = localizedExplain(n, p.explain); $('win-stars').textContent = hinted ? '★☆☆' : '★★☆'; }, 450);
 }
-function nextPuzzle() {
-  if (dailyMode) { closeGame(); showToast('Daily challenge complete. Come back tomorrow for a new one!'); return; }
-  if (activePuzzle >= 19) { closeGame(); showToast('World complete! More puzzles are coming soon.'); return; }
-  openPuzzle(activeWorld, activePuzzle + 1, false);
-}
+function nextPuzzle() { if (dailyMode) { closeGame(); showToast(tr('Daily challenge complete. Come back tomorrow!','Đã hoàn thành thử thách hôm nay!')); return; } if (activePuzzle >= 9) { closeGame(); showToast(tr('World complete! More puzzles are coming soon.','Đã hoàn thành thế giới! Sắp có thêm câu đố mới.')); return; } openPuzzle(activeWorld, activePuzzle + 1, false); }
 function closeGame() { $('game-modal').classList.add('hidden'); }
 function showPremium() { $('premium-modal').classList.remove('hidden'); }
 function closePremium() { $('premium-modal').classList.add('hidden'); }
-
-// Phaser adds a subtle animated starfield behind the DOM-based game UI.
-class AmbientScene extends Phaser.Scene {
-  private stars: Phaser.GameObjects.Arc[] = [];
-  constructor() { super('ambient'); }
-  create() {
-    const { width, height } = this.scale;
-    for (let i = 0; i < 34; i++) {
-      const x = Phaser.Math.Between(0, width), y = Phaser.Math.Between(0, height);
-      const star = this.add.circle(x, y, Phaser.Math.Between(1, 2), 0x8e96ff, Phaser.Math.FloatBetween(0.15, 0.6));
-      this.stars.push(star); this.tweens.add({ targets: star, alpha: Phaser.Math.FloatBetween(0.05, 0.45), duration: Phaser.Math.Between(900, 2600), yoyo: true, repeat: -1, delay: Phaser.Math.Between(0, 1600) });
-    }
-    this.scale.on('resize', () => this.scene.restart());
-  }
+function getAudio(): AudioContext | null { try { if (!audioContext) audioContext = new AudioContext(); if (audioContext.state === 'suspended') void audioContext.resume(); return audioContext; } catch { return null; } }
+function playTone(correct: boolean) { if (!save.sound) return; const ctx = getAudio(); if (!ctx) return; const now = ctx.currentTime; const notes = correct ? [659.25, 783.99, 987.77] : [220, 174.61]; notes.forEach((freq, i) => { const osc = ctx.createOscillator(), gain = ctx.createGain(); osc.type = correct ? 'sine' : 'triangle'; osc.frequency.value = freq; gain.gain.setValueAtTime(0.0001, now + i * (correct ? .09 : .13)); gain.gain.exponentialRampToValueAtTime(correct ? .12 : .08, now + i * (correct ? .09 : .13) + .015); gain.gain.exponentialRampToValueAtTime(.0001, now + i * (correct ? .09 : .13) + .18); osc.connect(gain); gain.connect(ctx.destination); osc.start(now + i * (correct ? .09 : .13)); osc.stop(now + i * (correct ? .09 : .13) + .2); }); }
+function stopMusic() { if (musicTimer) window.clearInterval(musicTimer); musicTimer = 0; }
+function startMusic() { stopMusic(); if (!save.music) return; const ctx = getAudio(); if (!ctx) return; const theme = musicThemes[save.musicTheme] || musicThemes.calm; musicStep = 0; const playStep = () => { if (!save.music || !audioContext) return; const c = audioContext, now = c.currentTime, freq = theme.notes[musicStep % theme.notes.length]; const osc = c.createOscillator(), gain = c.createGain(); osc.type = theme.wave; osc.frequency.value = freq; gain.gain.setValueAtTime(0.0001, now); gain.gain.exponentialRampToValueAtTime(theme.wave === 'square' ? .012 : .035, now + .03); gain.gain.exponentialRampToValueAtTime(.0001, now + theme.tempo / 1000 * .85); osc.connect(gain); gain.connect(c.destination); osc.start(now); osc.stop(now + theme.tempo / 1000); const pad = c.createOscillator(), padGain = c.createGain(); pad.type = 'sine'; pad.frequency.value = Math.max(65, freq / 2); padGain.gain.setValueAtTime(0.0001, now); padGain.gain.exponentialRampToValueAtTime(0.008, now + .12); padGain.gain.exponentialRampToValueAtTime(0.0001, now + theme.tempo / 1000 * 1.8); pad.connect(padGain); padGain.connect(c.destination); pad.start(now); pad.stop(now + theme.tempo / 1000 * 1.9); musicStep++; }; playStep(); musicTimer = window.setInterval(playStep, theme.tempo); }
+function renderSettings() { const vi = save.lang === 'vi'; $('language-select').setAttribute('aria-label', vi ? 'Ngôn ngữ' : 'Language'); ( $('language-select') as HTMLSelectElement).value = save.lang; ( $('music-select') as HTMLSelectElement).value = save.musicTheme; ( $('sfx-check') as HTMLInputElement).checked = save.sound; ( $('music-check') as HTMLInputElement).checked = save.music; $('settings-title').textContent = tr('Settings','Cài đặt'); $('language-label').textContent = tr('Language','Ngôn ngữ'); $('sound-label').textContent = tr('Answer sound effects','Âm thanh đúng/sai'); $('music-label').textContent = tr('Background music','Nhạc nền'); $('music-style-label').textContent = tr('Music style','Phong cách nhạc'); $('music-note').textContent = tr('Music starts after you interact with the game.','Nhạc bắt đầu sau khi bạn tương tác với game.'); const musicOptions = ( $('music-select') as HTMLSelectElement).options; musicOptions[0].text = tr('Calm piano','Piano thư giãn'); musicOptions[1].text = tr('Focus ambient','Nhạc tập trung'); musicOptions[2].text = tr('Retro arcade','Nhạc arcade cổ điển'); $('save-settings').textContent = tr('Done','Hoàn tất'); $('settings-open').setAttribute('aria-label', tr('Open settings','Mở cài đặt')); document.documentElement.lang = save.lang; applyLanguage(); }
+function applyLanguage() {
+ const map: Record<string,[string,string]> = {
+ 'play-btn':['Play now ↗','Chơi ngay ↗'],'daily-btn':['Daily challenge ✦','Thử thách ngày ✦'],'premium-link':['Explore Plus ↗','Khám phá Plus ↗'],'next-puzzle':['Next puzzle ↗','Màn tiếp theo ↗'],'back-worlds':['Back to worlds','Về bản đồ'],'notify-premium':['I’m interested','Tôi quan tâm'],'premium-title':['Go beyond','Vượt qua'],
+ 'home-eyebrow':['YOUR DAILY BRAIN BOOST','THỬ THÁCH TRÍ TUỆ MỖI NGÀY'],'hero-title':['Think beyond','Tư duy vượt giới hạn'],'hero-sub':['Tiny puzzles. Big brain energy.','Câu đố nhỏ. Tư duy lớn.'],'worlds-eyebrow':['CHOOSE YOUR CHALLENGE','CHỌN THỬ THÁCH'],'worlds-title':['Worlds of wonder','Thế giới kỳ thú'],'world-1-title':['Pattern Grove','Rừng Quy Luật'],'world-1-desc':['Spot the hidden rule','Tìm quy luật ẩn'],'world-2-title':['Clockwork Lab','Phòng Máy Bí Ẩn'],'world-2-desc':['Move. Plan. Solve.','Di chuyển. Lập kế hoạch. Giải đố.'],'world-3-title':['Cosmic Mind','Trí Tuệ Vũ Trụ'],'world-3-desc':['Test your memory','Thử thách trí nhớ'],'daily-eyebrow':['A NEW PUZZLE EVERY DAY','MỖI NGÀY MỘT CÂU ĐỐ'],'daily-title':['Keep your mind curious.','Luôn tò mò và khám phá.'],'daily-copy':['One fresh challenge. A little smarter every day.','Một thử thách mới. Mỗi ngày thông minh hơn.'],'profile-eyebrow':['YOUR PROGRESS','TIẾN ĐỘ CỦA BẠN'],'puzzles-solved':['puzzles solved','màn đã giải'],'footer-copy':['Made for curious minds.','Dành cho những trí óc tò mò.'],'puzzle-eyebrow':['FIND THE PATTERN','TÌM QUY LUẬT'],'premium-eyebrow':['FOR THE CURIOUS','DÀNH CHO NGƯỜI TÒ MÒ'],'premium-copy':['Unlock the full puzzle library, deeper challenges, and exclusive themes.','Mở khóa thư viện câu đố, thử thách nâng cao và giao diện độc quyền.'],'premium-perks':['✓ All worlds & bonus packs|✓ Advanced daily challenges|✓ Exclusive visual themes|✓ Progress insights','✓ Tất cả thế giới và gói thưởng|✓ Thử thách ngày nâng cao|✓ Chủ đề hình ảnh độc quyền|✓ Thống kê tiến độ']
+ };
+ for (const [id, pair] of Object.entries(map)) { const el = document.getElementById(id); if (!el) continue; const value = pair[save.lang === 'vi' ? 1 : 0]; if (id === 'home-eyebrow') { el.innerHTML = `<span class="live-dot"></span>${value}`; } else if (id === 'premium-title') { const span = el.querySelector('span'); if (span) span.textContent = save.lang === 'vi' ? 'mọi giới hạn.' : 'the ordinary.'; el.firstChild && (el.firstChild.textContent = save.lang === 'vi' ? 'Vượt qua ' : 'Go beyond '); } else if (id === 'hero-title') { const span = el.querySelector('span'); if (span) span.textContent = save.lang === 'vi' ? 'mỗi ngày.' : 'the obvious.'; el.firstChild && (el.firstChild.textContent = save.lang === 'vi' ? 'Tư duy khác biệt ' : 'Think beyond '); } else if (id === 'premium-perks') el.innerHTML = value.split('|').map(s => `<span>${s}</span>`).join(''); else el.textContent = value; }
+ const worldCounts = document.querySelectorAll<HTMLElement>('.world-bottom span:first-child'); worldCounts.forEach(el => el.textContent = `10 ${tr('puzzles','màn')}`); document.querySelectorAll<HTMLElement>('.world-number').forEach((el,i) => el.textContent = `${tr('WORLD','THẾ GIỚI')} 0${i+1}`); const winEyebrow = document.querySelector<HTMLElement>('#win-panel .eyebrow'); if (winEyebrow) winEyebrow.textContent = tr('PUZZLE COMPLETE','HOÀN THÀNH CÂU ĐỐ'); $('premium-feedback').textContent = tr('No payment is taken in this prototype.','Bản thử nghiệm này chưa thu tiền.'); const priceStrong = document.querySelector<HTMLElement>('.price-row strong'); const priceSpan = document.querySelector<HTMLElement>('.price-row span'); if (priceStrong) priceStrong.textContent = tr('Coming soon','Sắp ra mắt'); if (priceSpan) priceSpan.textContent = tr('Premium preview','Xem trước Premium'); renderStats();
 }
-const ambientRoot = document.createElement('div');
-ambientRoot.id = 'ambient-canvas';
-document.body.prepend(ambientRoot);
-const game = new Phaser.Game({ type: Phaser.CANVAS, parent: ambientRoot, width: 420, height: 800, transparent: true, render: { antialias: true }, scene: [AmbientScene], scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH } });
-// Keep the ambient renderer lightweight and behind the HTML interface.
-game.canvas.style.width = '100%'; game.canvas.style.height = '100%'; game.canvas.style.pointerEvents = 'none';
+// Ambient starfield is decorative only; CSS layout controls all content dimensions.
+class AmbientScene extends Phaser.Scene { constructor() { super('ambient'); } create() { const { width, height } = this.scale; for (let i = 0; i < 28; i++) { const star = this.add.circle(Phaser.Math.Between(0,width),Phaser.Math.Between(0,height),Phaser.Math.Between(1,2),0x8e96ff,Phaser.Math.FloatBetween(.12,.4)); this.tweens.add({targets:star,alpha:Phaser.Math.FloatBetween(.04,.4),duration:Phaser.Math.Between(1000,2800),yoyo:true,repeat:-1}); } } }
+const ambientRoot = document.createElement('div'); ambientRoot.id = 'ambient-canvas'; document.body.prepend(ambientRoot);
+const ambientGame = new Phaser.Game({type:Phaser.CANVAS,parent:ambientRoot,width:420,height:800,transparent:true,render:{antialias:true},scene:[AmbientScene],scale:{mode:Phaser.Scale.RESIZE,autoCenter:Phaser.Scale.CENTER_BOTH}}); ambientGame.canvas.style.width='100%'; ambientGame.canvas.style.height='100%'; ambientGame.canvas.style.pointerEvents='none';
 
-$('play-btn').addEventListener('click', () => openPuzzle(0, Math.min(19, save.solved.filter(id => id < 20).length)));
-$('daily-btn').addEventListener('click', () => openPuzzle(0, new Date().getDate() % puzzles.length, true));
-$('daily-card-btn').addEventListener('click', () => openPuzzle(0, new Date().getDate() % puzzles.length, true));
-document.querySelectorAll<HTMLButtonElement>('.world-card').forEach(card => card.addEventListener('click', () => { const world = Number(card.dataset.world); if (worldUnlocked(world)) openPuzzle(world, Math.min(19, save.solved.filter(id => Math.floor(id / 20) === world).length)); else showToast(world === 1 ? 'Earn 5 stars to unlock this world.' : 'Earn 15 stars to unlock this world.'); }));
+$('play-btn').addEventListener('click', () => { getAudio(); openPuzzle(0, Math.min(9, save.solved.filter(id => id < 10).length)); });
+const dailyIndex = () => (Math.floor(Date.now()/86400000) % 10);
+$('daily-btn').addEventListener('click', () => { getAudio(); openPuzzle(0, dailyIndex(), true); }); $('daily-card-btn').addEventListener('click', () => { getAudio(); openPuzzle(0, dailyIndex(), true); });
+document.querySelectorAll<HTMLButtonElement>('.world-card').forEach(card => card.addEventListener('click', () => { const world = Number(card.dataset.world); if (worldUnlocked(world)) openPuzzle(world, Math.min(9, save.solved.filter(id => Math.floor(id / 10) === world).length)); else showToast(world === 1 ? tr('Earn 5 stars to unlock this world.','Đạt 5 sao để mở thế giới này.') : tr('Earn 15 stars to unlock this world.','Đạt 15 sao để mở thế giới này.')); }));
 $('close-game').addEventListener('click', closeGame); $('back-worlds').addEventListener('click', closeGame); $('next-puzzle').addEventListener('click', nextPuzzle);
-$('hint-btn').addEventListener('click', () => { if (hinted) { showToast('You already used a hint for this puzzle.'); return; } if (save.xp < 10) { showToast('Not enough XP for a hint yet.'); return; } save.xp -= 10; persist(); hinted = true; $('feedback').textContent = `HINT: ${puzzleFor(activeWorld, activePuzzle).hint}`; $('hint-btn').classList.add('hint-used'); });
-$('sound-toggle').addEventListener('click', () => { save.sound = !save.sound; persist(); $('sound-toggle').classList.toggle('muted', !save.sound); $('sound-toggle').textContent = save.sound ? '♫' : '♪̸'; showToast(save.sound ? 'Sound enabled' : 'Sound muted'); });
-$('premium-link').addEventListener('click', showPremium); $('close-premium').addEventListener('click', closePremium);
-$('notify-premium').addEventListener('click', () => { save.premiumInterest = true; persist(); $('premium-feedback').textContent = 'Thanks! Your interest is saved on this device.'; $('notify-premium').textContent = 'Interest saved ✓'; });
-$('game-modal').addEventListener('click', e => { if (e.target === $('game-modal')) closeGame(); }); $('premium-modal').addEventListener('click', e => { if (e.target === $('premium-modal')) closePremium(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeGame(); closePremium(); } });
+$('hint-btn').addEventListener('click', () => { if (hinted) { showToast(tr('You already used a hint for this puzzle.','Bạn đã dùng gợi ý cho màn này.')); return; } if (save.xp < 10) { showToast(tr('Not enough XP for a hint yet.','Chưa đủ XP để dùng gợi ý.')); return; } save.xp -= 10; persist(); hinted = true; const n = activeWorld*10+activePuzzle+1; $('feedback').textContent = `💡 ${localizedHint(n,puzzleFor(activeWorld,activePuzzle).hint)}`; $('hint-btn').classList.add('hint-used'); });
+$('sound-toggle').addEventListener('click', () => { save.sound = !save.sound; persist(); $('sound-toggle').classList.toggle('muted',!save.sound); $('sound-toggle').textContent = save.sound ? '♫' : '♪̸'; showToast(save.sound ? tr('Sound effects enabled','Đã bật âm thanh') : tr('Sound effects muted','Đã tắt âm thanh')); });
+$('settings-open').addEventListener('click', () => { renderSettings(); $('settings-modal').classList.remove('hidden'); }); $('close-settings').addEventListener('click', () => $('settings-modal').classList.add('hidden')); $('save-settings').addEventListener('click', () => { save.lang = ($('language-select') as HTMLSelectElement).value as Lang; save.musicTheme = ($('music-select') as HTMLSelectElement).value; save.sound = ($('sfx-check') as HTMLInputElement).checked; save.music = ($('music-check') as HTMLInputElement).checked; persist(); renderSettings(); if (save.music) startMusic(); else stopMusic(); $('settings-modal').classList.add('hidden'); showToast(tr('Settings saved','Đã lưu cài đặt')); }); $('music-check').addEventListener('change', () => { if (($('music-check') as HTMLInputElement).checked) { save.music = true; getAudio(); startMusic(); } else { save.music = false; stopMusic(); } }); $('music-select').addEventListener('change', () => { save.musicTheme = ($('music-select') as HTMLSelectElement).value; if (save.music) startMusic(); });
+$('premium-link').addEventListener('click', showPremium); $('close-premium').addEventListener('click', closePremium); $('notify-premium').addEventListener('click', () => { save.premiumInterest = true; persist(); $('premium-feedback').textContent = tr('Thanks! Your interest is saved on this device.','Cảm ơn! Quan tâm của bạn đã được lưu trên thiết bị.'); $('notify-premium').textContent = tr('Interest saved ✓','Đã lưu ✓'); });
+for (const id of ['game-modal','premium-modal','settings-modal']) $(id).addEventListener('click', e => { if (e.target === $(id)) $(id).classList.add('hidden'); }); document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeGame(); closePremium(); $('settings-modal').classList.add('hidden'); } });
 if ('serviceWorker' in navigator && import.meta.env.PROD) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => undefined));
-renderStats();
+const audit = auditPuzzles(); if (audit.length) console.error('Brain Quest puzzle audit failed:', audit); renderStats(); renderSettings(); $('sound-toggle').classList.toggle('muted',!save.sound); if (save.music) { /* start after first user interaction to satisfy autoplay rules */ document.addEventListener('pointerdown', () => { if (save.music && !musicTimer) startMusic(); }, {once:true}); }

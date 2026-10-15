@@ -1,12 +1,13 @@
 {
   "name": "brain-quest",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Brain Quest - 2D logic puzzle game prototype for Web, PWA, Android and iOS",
+  "description": "Brain Quest - bilingual 2D logic puzzle game prototype for Web, PWA, Android and iOS",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
+    "audit:puzzles": "node scripts/audit-puzzles.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "cap:sync": "cap sync",
     "android:open": "cap open android",

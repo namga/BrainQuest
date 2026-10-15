@@ -23,6 +23,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+      - name: Audit puzzle logic and answer keys
+        run: npm run audit:puzzles
 
       - name: Build Web app
         run: npm run build

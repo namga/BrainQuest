@@ -90,3 +90,21 @@ If GitHub Actions is disabled for the repository, enable it in repository settin
 3. Add consent-aware analytics and crash reporting only if needed.
 4. Implement secure receipt verification before enabling real purchases.
 5. Add cloud saves/accounts only after validating retention and payment demand.
+
+
+## Prototype v0.2.0 update
+
+- Fixed mobile layout overflow with safe-area-aware, scrollable modal layouts and narrower-screen rules.
+- Added Settings with English/Vietnamese UI selection.
+- Added 30 authored puzzle levels across three difficulty tiers and three worlds.
+- Added a structural puzzle-bank audit (four unique options, valid answer index, and required hint/explanation).
+- Added generated answer feedback tones and three selectable synthesized background music themes: Calm Piano, Focus Ambient, and Retro Arcade. Audio starts after user interaction to respect browser autoplay policies.
+- Kept gameplay offline-first and saved language, sound, music and progress settings locally.
+
+### Logic validation
+
+The 30 puzzle records were structurally checked for four unique choices and valid answer indices. Each answer key was also manually reviewed against its written sequence/rule. This is a content-level review, not a substitute for player usability testing.
+
+### Audio note
+
+The prototype synthesizes tones with the Web Audio API, so it does not bundle licensed music files. Music requires a user interaction before playback in browsers and may be paused by device power-saving policies.
