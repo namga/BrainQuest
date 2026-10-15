@@ -1,6 +1,6 @@
 {
   "name": "brain-quest",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Brain Quest - bilingual 2D logic puzzle game prototype for Web, PWA, Android and iOS",
   "type": "module",
@@ -22,6 +22,7 @@
   "devDependencies": {
     "@capacitor/cli": "^7.4.3",
     "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "@capacitor/assets": "^3.0.5"
   }
 }

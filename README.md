@@ -108,3 +108,9 @@ The 30 puzzle records were structurally checked for four unique choices and vali
 ### Audio note
 
 The prototype synthesizes tones with the Web Audio API, so it does not bundle licensed music files. Music requires a user interaction before playback in browsers and may be paused by device power-saving policies.
+
+
+## v0.3.0 — mobile header and app icon fix
+- Added PNG app icons at 192/512/1024 sizes, PWA favicon and Apple touch icon.
+- Added Capacitor Assets generation steps to Android/iOS workflows so native launcher icons are generated during CI.
+- Reworked narrow-screen header into a clear two-row layout, added safe-area spacing, larger touch targets, and raised Settings dialog z-index.
