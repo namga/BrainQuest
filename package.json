@@ -1,6 +1,6 @@
 {
   "name": "brain-quest",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "private": true,
   "description": "Brain Quest - bilingual 2D logic puzzle game prototype for Web, PWA, Android and iOS",
   "type": "module",

@@ -38,20 +38,38 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
+      - name: Validate Brain Quest branding source files
+        run: |
+          test -f assets/icon.png
+          test -f assets/splash.png
+          file assets/icon.png assets/splash.png
+
       - name: Generate Android app icons and splash assets
         run: npx capacitor-assets generate --android
 
       - name: Sync Capacitor Android
         run: npx cap sync android
 
+      - name: Set Android app version and output filename
+        working-directory: android
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('../package.json').version")"
+          VERSION_CODE="$(node -e "const [a,b,c]=require('../package.json').version.split('.').map(Number); console.log(a*10000+b*100+c)")"
+          sed -i -E "s/versionCode [0-9]+/versionCode ${VERSION_CODE}/; s/versionName '[^']+'/versionName '${VERSION}'/" app/build.gradle
+          echo "APP_VERSION=${VERSION}" >> "$GITHUB_ENV"
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew --no-daemon assembleDebug
 
-      - name: Upload debug APK
+      - name: Rename APK with app name and version
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk "Brain-Quest-v${APP_VERSION}-debug.apk"
+
+      - name: Upload versioned debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: brain-quest-android-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Brain-Quest-v${{ env.APP_VERSION }}-Android-debug
+          path: Brain-Quest-v${{ env.APP_VERSION }}-debug.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30

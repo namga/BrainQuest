@@ -32,11 +32,20 @@ jobs:
       - name: Add iOS platform
         run: npx cap add ios
 
+      - name: Validate Brain Quest branding source files
+        run: |
+          test -f assets/icon.png
+          test -f assets/splash.png
+          file assets/icon.png assets/splash.png
+
       - name: Generate iOS app icons and splash assets
         run: npx capacitor-assets generate --ios
 
       - name: Sync Capacitor iOS
         run: npx cap sync ios
+
+      - name: Read app version
+        run: echo "APP_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
 
       - name: Build unsigned iOS app
         run: |
@@ -53,7 +62,7 @@ jobs:
       - name: Upload unsigned .app bundle
         uses: actions/upload-artifact@v4
         with:
-          name: brain-quest-ios-unsigned-app
+          name: Brain-Quest-v${{ env.APP_VERSION }}-iOS-unsigned-app
           path: build/DerivedData/Build/Products/Release-iphoneos/App.app
           if-no-files-found: error
           retention-days: 14

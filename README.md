@@ -30,6 +30,14 @@ npm run build
 npm run preview
 ```
 
+## App name and versioned build files
+
+- App display name: **Brain Quest** (configured in `capacitor.config.ts`).
+- Version: read from `package.json` (currently `0.3.2`).
+- Android artifact and downloaded APK filename include the app name and version, for example `Brain-Quest-v0.3.2-debug.apk`.
+- The Android workflow also sets the native Android `versionName` and `versionCode` from the package version.
+- After changing `package.json` version, commit and push to trigger a new versioned build.
+
 ## Android
 
 The Android workflow creates the Capacitor Android project on the GitHub runner, builds a debug APK, and uploads it as an artifact.
@@ -44,7 +52,7 @@ npx cap sync android
 npx cap open android
 ```
 
-The GitHub Actions APK is a **debug APK** for testing, not a signed Play Store release. After a workflow completes, open **Actions → Build Android APK → run → Artifacts** and download `brain-quest-android-debug`.
+The GitHub Actions APK is a **debug APK** for testing, not a signed Play Store release. After a workflow completes, open **Actions → Build Android APK → run → Artifacts** and download the artifact named `Brain-Quest-v<version>-Android-debug`; the APK filename includes the same version.
 
 ## iOS
 
@@ -114,3 +122,9 @@ The prototype synthesizes tones with the Web Audio API, so it does not bundle li
 - Added PNG app icons at 192/512/1024 sizes, PWA favicon and Apple touch icon.
 - Added Capacitor Assets generation steps to Android/iOS workflows so native launcher icons are generated during CI.
 - Reworked narrow-screen header into a clear two-row layout, added safe-area spacing, larger touch targets, and raised Settings dialog z-index.
+
+
+## v0.3.2 — versioned app builds
+- Android APK filename and GitHub Actions artifact now include the app name and semantic version.
+- Native Android versionName/versionCode are set from package.json.
+- iOS unsigned artifact also includes the version in its artifact name.
